@@ -10,6 +10,7 @@ class QComboBox;
 class QLabel;
 class QPushButton;
 class QScrollArea;
+class QTreeWidget;
 
 QT_END_NAMESPACE
 
@@ -44,6 +45,8 @@ private:
     QPushButton *gameMove = nullptr;
     QPushButton *CreatePlayer = nullptr;
     QPushButton *CreateNewGame = nullptr;
+    QTreeWidget* listofplayers = nullptr;
+    QTreeWidget* gameBoardsList = nullptr;
 
     QNetworkAccessManager* addPlayer = nullptr;
     QNetworkAccessManager* addGame = nullptr;

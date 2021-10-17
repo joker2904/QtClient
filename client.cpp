@@ -10,10 +10,9 @@ Client::Client(QWidget *parent)
     , gameCombo(new QComboBox)
     , rowCombo(new QComboBox)
     , colCombo(new QComboBox)
-    , gameBoards(new QScrollArea)
     , CreatePlayer(new QPushButton(tr("Create new Player")))
     , gameMove(new QPushButton(tr("Make A Move")))
-    , CreateNewGame(new QPushButton(tr("Create New Game")))
+    , CreateNewGame(new QPushButton(tr("Create New Game")))    
     , pollingTimer(new QTimer())
 
 {
@@ -31,6 +30,20 @@ Client::Client(QWidget *parent)
     colCombo->addItem("2");
     colCombo->addItem("3");
 
+    listofplayers = new QTreeWidget(this);
+    QTreeWidgetItem *HeaderItem = new QTreeWidgetItem();
+    HeaderItem->setText(0,"Player Id");
+    HeaderItem->setText(1,"Games Won");
+    listofplayers->setHeaderItem(HeaderItem);
+
+    gameBoardsList = new QTreeWidget(this);
+    QTreeWidgetItem *HeaderItemBoard = new QTreeWidgetItem();
+    HeaderItemBoard->setText(0,"Game Id");
+    HeaderItemBoard->setText(1,"Game Board");
+    gameBoardsList->setHeaderItem(HeaderItemBoard);
+    gameBoardsList->setStyleSheet("QTreeWidget::item {  border-right: 1px solid black; border-bottom: 1px solid black;}");
+
+
     auto playerID = new QLabel(tr("&Player ID:"));
     auto gameID = new QLabel(tr("&Game ID:"));
     auto row_label = new QLabel(tr("&Row Index:"));
@@ -41,7 +54,7 @@ Client::Client(QWidget *parent)
     col_label->setBuddy(colCombo);
 
     statusLabel = new QLabel(tr("Responses will be displayed here."));
-    gameBoards->setEnabled(true);
+    //gameBoards->setEnabled(true);
     gameMove->setDefault(true);
     gameMove->setEnabled(true);
 
@@ -101,9 +114,11 @@ Client::Client(QWidget *parent)
     mainLayout->addWidget(rowCombo,2,1);
     mainLayout->addWidget(col_label,3,0);
     mainLayout->addWidget(colCombo,3,1);
-    mainLayout->addWidget(gameBoards, 5, 0, 3, 2);
-    mainLayout->addWidget(statusLabel, 27, 0, 3, 2);
-    mainLayout->addWidget(buttonBox, 30, 0, 1, 2);
+    //mainLayout->addWidget(gameBoards, 5, 0, 3, 2);
+    mainLayout->addWidget(gameBoardsList,5,0,40,2);
+    mainLayout->addWidget(statusLabel, 47, 0, 2, 2);
+    mainLayout->addWidget(buttonBox,50, 0, 1, 2);
+    mainLayout->addWidget(listofplayers,60,0,1,2);
 
     setWindowTitle(QGuiApplication::applicationDisplayName());
     pollingTimer->start();
@@ -146,14 +161,22 @@ void Client::response_list_of_Players(QNetworkReply* reply)
     QByteArray response =  reply->readAll();
     QJsonObject document = QJsonDocument::fromJson(response).object();
     QJsonValue data = document.value("result");
-    //QJsonObject list_of_Players = data.toObject();
-    QStringList list_of_Players = data.toObject().keys();
+    QJsonObject data_Players = data.toObject();
+    QStringList list_of_Players = data_Players.keys();
     int current = playerCombo->currentIndex();
     int n = list_of_Players.length();
     playerCombo->setEditable(false);
     playerCombo->clear();
+    listofplayers->clear();
     for(int i = 0; i<n;++i)
+    {
       playerCombo->addItem(list_of_Players[i]);
+      QTreeWidgetItem* playerRow = new QTreeWidgetItem();
+      int win_score = data_Players.value(list_of_Players[i]).toInt() ;
+      playerRow->setText(0,list_of_Players[i]);
+      playerRow->setText(1,QString::number(win_score));
+      listofplayers->insertTopLevelItem(0,playerRow);
+    }
     playerCombo->setCurrentIndex(current);
 }
 
@@ -180,9 +203,11 @@ void Client::response_list_of_Games(QNetworkReply* reply)
     int n = list_of_games.length();
     gameCombo->setEditable(false);
     gameCombo->clear();
+    gameBoardsList->clear();
     for(int i = 0; i<n;++i)
     {
       gameCombo->addItem(list_of_games[i]);
+      QTreeWidgetItem* gameboardRow = new QTreeWidgetItem();
       QJsonArray board = gameMap.value(list_of_games[i]).toArray();
       QJsonArray r1 = board[0].toArray();
       QJsonArray r2 = board[1].toArray();
@@ -191,14 +216,19 @@ void Client::response_list_of_Games(QNetworkReply* reply)
       QString line1 = BoardCharacter(r1[0].toInt()) + " | " +  BoardCharacter(r1[1].toInt()) + " | " +  BoardCharacter(r1[2].toInt());
       QString line2 = BoardCharacter(r2[0].toInt()) + " | " +  BoardCharacter(r2[1].toInt()) + " | " +  BoardCharacter(r2[2].toInt());
       QString line3 = BoardCharacter(r3[0].toInt()) + " | " +  BoardCharacter(r3[1].toInt()) + " | " +  BoardCharacter(r3[2].toInt());
-      QString thisgame = "~~~~~~~~~~~ Game ID : "+QString(list_of_games[i])+"\n"+line1+"\n"+linemid+"\n"+line2+"\n"+linemid+"\n"+line3+"\n";
-      textgame = textgame + thisgame+ "\n";
+      gameboardRow->setText(0,QString(list_of_games[i]));
+      gameboardRow->setText(1,QString("\n"+line1+"\n"+linemid+"\n"+line2+"\n"+linemid+"\n"+line3+"\n"));
+      gameBoardsList->insertTopLevelItem(0,gameboardRow);
+      //QString thisgame = "~~~~~~~~~~~ Game ID : "+QString(list_of_games[i])+"\n"+line1+"\n"+linemid+"\n"+line2+"\n"+linemid+"\n"+line3+"\n";
+      //textgame = textgame + thisgame+ "\n";
     }
+    /*
     QWidget *central = new QWidget;
     QVBoxLayout *layout = new QVBoxLayout(central);
     layout->addWidget(new QLabel(textgame));
     gameBoards->setWidget(central);
     gameBoards->setWidgetResizable(true);
+    */
     gameCombo->setCurrentIndex(current);
 }
 
