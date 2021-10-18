@@ -43,6 +43,15 @@ Client::Client(QWidget *parent)
     gameBoardsList->setHeaderItem(HeaderItemBoard);
     gameBoardsList->setStyleSheet("QTreeWidget::item {  border-right: 1px solid black; border-bottom: 1px solid black;}");
 
+    gameBoardstatus = new QTreeWidget(this);
+    HeaderItemBoard = new QTreeWidgetItem();
+    HeaderItemBoard->setText(0,"Game Id");
+    HeaderItemBoard->setText(1,"Players");
+    HeaderItemBoard->setText(2,"Last Played");
+    HeaderItemBoard->setText(3,"Status");
+    gameBoardstatus->setHeaderItem(HeaderItemBoard);
+    gameBoardstatus->setStyleSheet("QTreeWidget::item {  border-right: 1px solid black; border-bottom: 1px solid black;}");
+
 
     auto playerID = new QLabel(tr("&Player ID:"));
     auto gameID = new QLabel(tr("&Game ID:"));
@@ -77,12 +86,15 @@ Client::Client(QWidget *parent)
     addGame = new QNetworkAccessManager(this);
     PlayerFetcher = new QNetworkAccessManager(this);
     GameFetcher = new QNetworkAccessManager(this);
+    GameStatusFetcher = new QNetworkAccessManager(this);
     connect(addPlayer, &QNetworkAccessManager::finished, this, &Client::response_addplayer);
     connect(PlayerFetcher, &QNetworkAccessManager::finished, this, &Client::response_list_of_Players);
     connect(addGame, &QNetworkAccessManager::finished, this, &Client::response_addgame);
     connect(GameFetcher, &QNetworkAccessManager::finished, this, &Client::response_list_of_Games);
+    connect(GameStatusFetcher, &QNetworkAccessManager::finished, this, &Client::response_status_of_Games);
     connect(pollingTimer, &QTimer::timeout, this, &Client::GetAllGames);
     connect(pollingTimer, &QTimer::timeout, this, &Client::GetAllPlayers);
+    connect(pollingTimer, &QTimer::timeout, this, &Client::GetAllGameStatus);
 
 
 
@@ -100,10 +112,11 @@ Client::Client(QWidget *parent)
     mainLayout->addWidget(rowCombo,2,1);
     mainLayout->addWidget(col_label,3,0);
     mainLayout->addWidget(colCombo,3,1);
-    mainLayout->addWidget(gameBoardsList,5,0,100,2);
-    mainLayout->addWidget(statusLabel, 110, 0, 2, 2);
-    mainLayout->addWidget(buttonBox,120, 0, 1, 2);
-    mainLayout->addWidget(listofplayers,130,0,1,2);
+    mainLayout->addWidget(gameBoardsList,5,0,10,1);
+    mainLayout->addWidget(gameBoardstatus,5,1,10,3);
+    mainLayout->addWidget(statusLabel, 16, 0);//, 2, 2);
+    mainLayout->addWidget(buttonBox,17, 0);//, 1, 2);
+    mainLayout->addWidget(listofplayers,0,2,4,2);
 
     setWindowTitle(QGuiApplication::applicationDisplayName());
     pollingTimer->start();
@@ -121,6 +134,26 @@ QString Client::BoardCharacter(int asci_value)
     return returnchar;
 }
 
+QString Client::getPlayerIdStrings(int number1,int number2)
+{
+    QString returnchar;
+    if(number1 != -1)
+        returnchar = QString::number(number1);
+    if(number1 != -1 && number2 != -1)
+        returnchar += " , "+QString::number(number2);
+    else if(number1 == -1 && number2 != -1)
+        returnchar = QString::number(number2);
+
+    return returnchar;
+}
+
+QString Client::getPlayerId(int number)
+{
+    QString returnchar;
+    if(number != -1)
+        returnchar = QString::number(number);
+    return returnchar;
+}
 
 /* APIs and handler to create players and fetch their responses */
 
@@ -210,6 +243,41 @@ void Client::GetAllGames()
     QNetworkRequest request(QUrl("http://localhost:9098/tictacserver/getallgames"));
     request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
     GameFetcher->get(request);
+}
+
+
+void Client::response_status_of_Games(QNetworkReply* reply)
+{
+    QByteArray response =  reply->readAll();
+    QJsonObject document = QJsonDocument::fromJson(response).object();
+    QJsonValue data = document.value("result");
+    QJsonObject gameMap = data.toObject();
+    gameBoardstatus->clear();
+    QStringList list_of_games = gameMap.keys();
+    int n = list_of_games.length();
+    for(int i = 0; i<n;++i)
+    {
+      QTreeWidgetItem* gameRow = new QTreeWidgetItem();
+      QJsonArray board = gameMap.value(list_of_games[i]).toArray();
+      QString players = getPlayerIdStrings(board[0].toInt() ,board[1].toInt());
+      gameRow->setText(0,QString(list_of_games[i]));
+      gameRow->setText(1,players);
+      gameRow->setText(2,getPlayerId(board[2].toInt()));
+      if( board[3].toInt() == -1)
+          gameRow->setText(3,QString("ONgoing"));
+      else if( board[3].toInt() == 2)
+          gameRow->setText(3,QString("Over,Draw"));
+      else if( board[3].toInt() == 0 || board[3].toInt() == 1)
+          gameRow->setText(3,QString("Over,Winner : ") + getPlayerId(board[board[3].toInt()].toInt()));
+      gameBoardstatus->insertTopLevelItem(0,gameRow);
+    }
+}
+
+void Client::GetAllGameStatus()
+{
+    QNetworkRequest request(QUrl("http://localhost:9098/tictacserver/getallgamesstatus"));
+    request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
+    GameStatusFetcher->get(request);
 }
 
 void Client::response_addgame(QNetworkReply* reply)

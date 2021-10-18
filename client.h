@@ -27,6 +27,8 @@ private slots:
     void makeMove();
 
     QString BoardCharacter(int);
+    QString getPlayerIdStrings(int,int);
+    QString getPlayerId(int);
     void response_addplayer(QNetworkReply*);
     void response_list_of_Players(QNetworkReply*);
     void GetAllPlayers();
@@ -34,6 +36,8 @@ private slots:
     void response_addgame(QNetworkReply*);
     void GetAllGames();
     void response_list_of_Games(QNetworkReply*);
+    void GetAllGameStatus();
+    void response_status_of_Games(QNetworkReply*);
 
 private:
     QComboBox *playerCombo = nullptr;
@@ -46,11 +50,13 @@ private:
     QPushButton *CreateNewGame = nullptr;
     QTreeWidget* listofplayers = nullptr;
     QTreeWidget* gameBoardsList = nullptr;
+    QTreeWidget* gameBoardstatus = nullptr;
 
     QNetworkAccessManager* addPlayer = nullptr;
     QNetworkAccessManager* addGame = nullptr;
     QNetworkAccessManager* PlayerFetcher = nullptr;
     QNetworkAccessManager* GameFetcher = nullptr;
+    QNetworkAccessManager* GameStatusFetcher = nullptr;
     QTimer* pollingTimer = nullptr;    
 };
 #endif
