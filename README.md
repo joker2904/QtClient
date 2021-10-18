@@ -27,3 +27,5 @@ The client has comboboxes to select the game and player ID. Player Id is the aut
 Select the row and column for this game and click the move button.
 The response for any action will be displayed. The client continuously polls the server for the status of games and players and updates the display.
 The player status and scores are shown on screen automatically.
+
+# As of now the server and client should run in the same machine. If the server is hosted on a public IP, and the client is run on any other machine then the IP address has to be changed in one place in the client and rebuilt.
