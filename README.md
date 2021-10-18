@@ -17,7 +17,8 @@
 # Step 1. Clone the project, git clone https://github.com/joker2904/QtClient.git
 # Step 2. cd QtClient
 # Step 3. qmake -o Makefile ClientGUI.pro
-# Step 4. ./ClientGUI
+# Step 4. make
+# Step 5. ./ClientGUI
 
 # How to use the client
 Make sure the ngrest server is running.
