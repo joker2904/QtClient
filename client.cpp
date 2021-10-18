@@ -112,8 +112,8 @@ Client::Client(QWidget *parent)
     mainLayout->addWidget(rowCombo,2,1);
     mainLayout->addWidget(col_label,3,0);
     mainLayout->addWidget(colCombo,3,1);
-    mainLayout->addWidget(gameBoardsList,5,0,10,1);
-    mainLayout->addWidget(gameBoardstatus,5,1,10,3);
+    mainLayout->addWidget(gameBoardsList,5,1,10,1);
+    mainLayout->addWidget(gameBoardstatus,5,0,10,1);
     mainLayout->addWidget(statusLabel, 16, 0);//, 2, 2);
     mainLayout->addWidget(buttonBox,17, 0);//, 1, 2);
     mainLayout->addWidget(listofplayers,0,2,4,2);
@@ -160,7 +160,7 @@ QString Client::getPlayerId(int number)
 void Client::CreatePlayerHandler()
 {
   QByteArray data= "";
-  QNetworkRequest request(QUrl("http://localhost:9098/tictacserver/newplayer"));
+  QNetworkRequest request(QUrl(serverpath+"newplayer"));
   request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
   addPlayer->post(request,data);
 }
@@ -199,7 +199,7 @@ void Client::response_list_of_Players(QNetworkReply* reply)
 
 void Client::GetAllPlayers()
 {
-    QNetworkRequest request(QUrl("http://localhost:9098/tictacserver/getplayerinfo"));
+    QNetworkRequest request(QUrl(serverpath+"getplayerinfo"));
     request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
     PlayerFetcher->get(request);
 }
@@ -240,7 +240,7 @@ void Client::response_list_of_Games(QNetworkReply* reply)
 
 void Client::GetAllGames()
 {
-    QNetworkRequest request(QUrl("http://localhost:9098/tictacserver/getallgames"));
+    QNetworkRequest request(QUrl(serverpath+"getallgames"));
     request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
     GameFetcher->get(request);
 }
@@ -275,7 +275,7 @@ void Client::response_status_of_Games(QNetworkReply* reply)
 
 void Client::GetAllGameStatus()
 {
-    QNetworkRequest request(QUrl("http://localhost:9098/tictacserver/getallgamesstatus"));
+    QNetworkRequest request(QUrl(serverpath+"getallgamesstatus"));
     request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
     GameStatusFetcher->get(request);
 }
@@ -290,7 +290,8 @@ void Client::response_addgame(QNetworkReply* reply)
 void Client::CreateGameHander()
 {
   QByteArray data = "";
-  QNetworkRequest request(QUrl("http://localhost:9098/tictacserver/createnewgame"));
+  QString full_api = serverpath+"createnewgame";
+  QNetworkRequest request(QUrl(serverpath+"createnewgame"));
   request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
   addGame->post(request,data);
 }
@@ -298,7 +299,7 @@ void Client::CreateGameHander()
 void Client::makeMove()
 {
   QByteArray data = "";
-  QString api = "http://localhost:9098/tictacserver/makeamove";
+  QString api = serverpath+"makeamove";
   QString player(playerCombo->currentText());
   QString gameid(gameCombo->currentText());
   QString rowIdx(rowCombo->currentText());

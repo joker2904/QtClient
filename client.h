@@ -11,6 +11,7 @@ class QLabel;
 class QPushButton;
 class QScrollArea;
 class QTreeWidget;
+class QString;
 
 QT_END_NAMESPACE
 
@@ -58,5 +59,6 @@ private:
     QNetworkAccessManager* GameFetcher = nullptr;
     QNetworkAccessManager* GameStatusFetcher = nullptr;
     QTimer* pollingTimer = nullptr;    
+    const QString serverpath = "http://localhost:9098/tictacserver/";
 };
 #endif
