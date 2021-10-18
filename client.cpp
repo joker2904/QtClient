@@ -166,7 +166,6 @@ void Client::response_list_of_Players(QNetworkReply* reply)
 
 void Client::GetAllPlayers()
 {
-    QByteArray data = "";
     QNetworkRequest request(QUrl("http://localhost:9098/tictacserver/getplayerinfo"));
     request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
     PlayerFetcher->get(request);
@@ -177,7 +176,6 @@ void Client::GetAllPlayers()
 /* APIs and handler to create games and fetch their responses */
 void Client::response_list_of_Games(QNetworkReply* reply)
 {
-    QString textgame = "List of Games Played :\n\n";
     QByteArray response =  reply->readAll();
     QJsonObject document = QJsonDocument::fromJson(response).object();
     QJsonValue data = document.value("result");
@@ -209,7 +207,6 @@ void Client::response_list_of_Games(QNetworkReply* reply)
 
 void Client::GetAllGames()
 {
-    QByteArray data = "";
     QNetworkRequest request(QUrl("http://localhost:9098/tictacserver/getallgames"));
     request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
     GameFetcher->get(request);
