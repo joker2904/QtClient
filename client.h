@@ -40,8 +40,7 @@ private:
     QComboBox *gameCombo = nullptr;
     QComboBox *rowCombo = nullptr;
     QComboBox *colCombo = nullptr;
-    QLabel *statusLabel = nullptr;
-    QScrollArea* gameBoards = nullptr;
+    QLabel *statusLabel = nullptr;   
     QPushButton *gameMove = nullptr;
     QPushButton *CreatePlayer = nullptr;
     QPushButton *CreateNewGame = nullptr;

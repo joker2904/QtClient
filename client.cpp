@@ -54,7 +54,7 @@ Client::Client(QWidget *parent)
     col_label->setBuddy(colCombo);
 
     statusLabel = new QLabel(tr("Responses will be displayed here."));
-    //gameBoards->setEnabled(true);
+
     gameMove->setDefault(true);
     gameMove->setEnabled(true);
 
@@ -91,21 +91,7 @@ Client::Client(QWidget *parent)
     connect(CreateNewGame, &QAbstractButton::clicked, this, &Client::CreateGameHander);
     connect(quitButton, &QAbstractButton::clicked, this, &QWidget::close);
 
-    QGridLayout *mainLayout = nullptr;
-    if (QGuiApplication::styleHints()->showIsFullScreen() || QGuiApplication::styleHints()->showIsMaximized()) {
-        auto outerVerticalLayout = new QVBoxLayout(this);
-        outerVerticalLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
-        auto outerHorizontalLayout = new QHBoxLayout;
-        outerHorizontalLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Ignored));
-        auto groupBox = new QGroupBox(QGuiApplication::applicationDisplayName());
-        mainLayout = new QGridLayout(groupBox);
-        outerHorizontalLayout->addWidget(groupBox);
-        outerHorizontalLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::MinimumExpanding, QSizePolicy::Ignored));
-        outerVerticalLayout->addLayout(outerHorizontalLayout);
-        outerVerticalLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
-    } else {
-        mainLayout = new QGridLayout(this);
-    }
+    QGridLayout *mainLayout = new QGridLayout(this);
     mainLayout->addWidget(playerID, 0, 0);
     mainLayout->addWidget(playerCombo, 0, 1);
     mainLayout->addWidget(gameID, 1, 0);
@@ -114,16 +100,13 @@ Client::Client(QWidget *parent)
     mainLayout->addWidget(rowCombo,2,1);
     mainLayout->addWidget(col_label,3,0);
     mainLayout->addWidget(colCombo,3,1);
-    //mainLayout->addWidget(gameBoards, 5, 0, 3, 2);
-    mainLayout->addWidget(gameBoardsList,5,0,40,2);
-    mainLayout->addWidget(statusLabel, 47, 0, 2, 2);
-    mainLayout->addWidget(buttonBox,50, 0, 1, 2);
-    mainLayout->addWidget(listofplayers,60,0,1,2);
+    mainLayout->addWidget(gameBoardsList,5,0,100,2);
+    mainLayout->addWidget(statusLabel, 110, 0, 2, 2);
+    mainLayout->addWidget(buttonBox,120, 0, 1, 2);
+    mainLayout->addWidget(listofplayers,130,0,1,2);
 
     setWindowTitle(QGuiApplication::applicationDisplayName());
     pollingTimer->start();
-    //GetAllPlayers();
-    //GetAllGames();
 }
 
 QString Client::BoardCharacter(int asci_value)
@@ -177,6 +160,7 @@ void Client::response_list_of_Players(QNetworkReply* reply)
       playerRow->setText(1,QString::number(win_score));
       listofplayers->insertTopLevelItem(0,playerRow);
     }
+    listofplayers->sortByColumn(1,Qt::DescendingOrder);
     playerCombo->setCurrentIndex(current);
 }
 
@@ -219,16 +203,7 @@ void Client::response_list_of_Games(QNetworkReply* reply)
       gameboardRow->setText(0,QString(list_of_games[i]));
       gameboardRow->setText(1,QString("\n"+line1+"\n"+linemid+"\n"+line2+"\n"+linemid+"\n"+line3+"\n"));
       gameBoardsList->insertTopLevelItem(0,gameboardRow);
-      //QString thisgame = "~~~~~~~~~~~ Game ID : "+QString(list_of_games[i])+"\n"+line1+"\n"+linemid+"\n"+line2+"\n"+linemid+"\n"+line3+"\n";
-      //textgame = textgame + thisgame+ "\n";
     }
-    /*
-    QWidget *central = new QWidget;
-    QVBoxLayout *layout = new QVBoxLayout(central);
-    layout->addWidget(new QLabel(textgame));
-    gameBoards->setWidget(central);
-    gameBoards->setWidgetResizable(true);
-    */
     gameCombo->setCurrentIndex(current);
 }
 
